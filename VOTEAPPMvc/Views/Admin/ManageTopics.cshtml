@@ -1,0 +1,33 @@
+﻿<!-- Views/Admin/ManageTopics.cshtml -->
+@model List<Topic>
+
+<h1>Manage Bills</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var topic in Model)
+        {
+            <tr>
+                <td>@topic.Title</td>
+                <td>@topic.Description</td>
+                <td>@topic.CreatedAt.ToString("d")</td>
+                <td>@(topic.IsActive ? "Active" : "Inactive")</td>
+                <td>
+                    <a href="@Url.Action("Index", "Vote", new { id = topic.Id })"
+                       class="btn btn-sm btn-info">View Results</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("CreateTopic")" class="btn btn-primary">Create New Topic</a>

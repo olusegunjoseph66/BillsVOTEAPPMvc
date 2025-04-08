@@ -1,0 +1,43 @@
+﻿@using VOTEAPPMvc.ViewModels
+<!-- Views/Home/Index.cshtml -->
+@model List<TopicSummaryViewModel>
+@{
+    ViewData["Title"] = "Voting Topics";
+}
+
+<h1>Current Bills</h1>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Topic</th>
+                <th>Total Votes</th>
+                <th>Hi Votes</th>
+                <th>Na Votes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var topic in Model)
+            {
+                <tr>
+                    <td>@topic.Title</td>
+                    <td>@topic.TotalVotes</td>
+                    <td>@topic.YesCount (@topic.YesPercentage.ToString("0.00")%)</td>
+                    <td>@topic.NoCount (@topic.NoPercentage.ToString("0.00")%)</td>
+                    <td>
+                        <a href="@Url.Action("Index", "Vote", new { id = topic.Id })" class="btn btn-info">View Details</a>
+                        <a href="@Url.Action("Submit", "Vote", new { id = topic.Id })" class="btn btn-primary">Vote</a>
+                        <a href="/api/vote/report/@topic.Id" class="btn btn-secondary">Download Report</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No active voting topics available.</div>
+}
