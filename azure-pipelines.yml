@@ -5,7 +5,13 @@
 
 #we setup the trigger which set pipeline to run when we push code
 trigger:
-- main  # Or your development branch
+- main
+
+# Use sequential execution
+# strategy:
+#   runOnce:
+#     deploy:
+#       steps:
 
 pool:
   vmImage: 'windows-latest'
@@ -14,58 +20,38 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   solution: '**/VOTEAPPMvc.sln'
-  project: '**/VOTEAPPMvc.csproj'
 
-stages:
-- stage: Build
-  jobs:
-  - job: Build_Job
-    steps:
-    # Explicit checkout configuration (recommended)
-    - checkout: self
-      clean: true
-      fetchDepth: 1
-      lfs: false
-      displayName: 'Checkout code'
+steps:
+- checkout: self
+  clean: true
+  fetchDepth: 1
 
-    # NuGet tasks
-    - task: NuGetToolInstaller@1
-      displayName: 'Install NuGet'
-    
-    - task: NuGetCommand@2
-      displayName: 'Restore packages'
-      inputs:
-        command: 'restore'
-        restoreSolution: '$(solution)'
-        feedsToUse: 'select'
+- task: NuGetToolInstaller@1
 
-    # Build and test
-    - task: DotNetCoreCLI@2
-      displayName: 'Build'
-      inputs:
-        command: 'build'
-        projects: '$(solution)'
-        arguments: '--configuration $(buildConfiguration)'
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '$(solution)'
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Run tests'
-      inputs:
-        command: 'test'
-        projects: '$(solution)'
-        arguments: '--configuration $(buildConfiguration) --collect:"Code Coverage"'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration)'
 
-    # Publish artifacts
-    - task: DotNetCoreCLI@2
-      displayName: 'Publish'
-      inputs:
-        command: 'publish'
-        publishWebProjects: true
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-        zipAfterPublish: false
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration)'
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish artifacts'
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'BillingPipe'
-        publishLocation: 'Container'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
