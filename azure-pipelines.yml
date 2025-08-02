@@ -8,8 +8,10 @@
 # branches:
 #     include:
 #         - main
+# trigger:
+# - none
 trigger:
-- none
+- main
 #To setup VM to use bcos we have many of them
 pool:
  vmImage: 'windows-latest'
@@ -31,8 +33,7 @@ variables:
 #Add .Netcore to Bulid
 #Add .NetPublish artifact
 
-# trigger:
-# - main  # Or your main branch name
+  # Or your main branch name
 
 
 
