@@ -12,33 +12,16 @@
 # - none
 trigger:
 - main
-#To setup VM to use bcos we have many of them
+
 pool:
- vmImage: 'windows-latest'
+  vmImage: 'windows-latest'
 
-#we need variables to be reused inside other task
 variables:
-   buildPlatform : 'Any CPU'
-   buildConfiguration : 'Release'
-   solution : '**/VOTEAPPMvc.sln'
-   project: '**/VOTEAPPMvc.csproj'
-
-
-#To start buld we need to set Task
-
-
-#we set the NugetToolInstaller we remove the input add name
-#Add Nuggets 
-#Add .NetCore to build 
-#Add .Netcore to Bulid
-#Add .NetPublish artifact
-
-  # Or your main branch name
-
-
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
 
 steps:
-- checkout: none  # Disable automatic checkout
 - task: NuGetToolInstaller@1
   displayName: 'NuGet Tool Installer'
 
