@@ -38,6 +38,7 @@ variables:
 
 
 steps:
+- checkout: none  # Disable automatic checkout
 - task: NuGetToolInstaller@1
   displayName: 'NuGet Tool Installer'
 
