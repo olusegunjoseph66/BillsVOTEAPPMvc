@@ -65,9 +65,9 @@ variables:
   buildConfiguration: 'Release'
 
 pool:
-  name: Azure Pipelines
+  name: Default
   demands:
-  - agent.os -equals Windows
+  - agent.os -equals Windows_NT
 
 steps:
 - checkout: self
