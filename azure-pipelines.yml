@@ -59,29 +59,64 @@
 #     publishLocation: 'Container'
 
 trigger:
-- main
+- main  # Or your specific branch
 
 variables:
   buildConfiguration: 'Release'
+  buildPlatform: 'Any CPU'
+  solution: '**/VOTEAPPMvc.sln'  # Better to specify solution file
 
 pool:
-  name: Default
+  name: Default  # Your self-hosted pool name
   demands:
-  - agent.os -equals Windows_NT
+  - agent.os -equals Windows_NT  # OS requirement
+  # Add any other capabilities your build requires
+  # - msbuild -exists
+  # - visualstudio -exists
+  # - dotnetcore -exists
 
 steps:
+# Checkout with cleanup
 - checkout: self
+  clean: true  # Ensures fresh workspace
+  fetchDepth: 1  # Shallow clone for faster builds
+  displayName: 'Checkout code'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Restore'
+# NuGet package restore
+- task: NuGetToolInstaller@1
+  displayName: 'Install NuGet'
+  condition: succeeded()  # Only run if checkout succeeds
+
+- task: NuGetCommand@2
+  displayName: 'Restore packages'
   inputs:
     command: 'restore'
-    projects: '**/*.csproj'
+    restoreSolution: '$(solution)'
+    feedsToUse: 'select'
+    vstsFeed: 'Your-Feed-ID'  # If using Azure Artifacts
 
+# Build solution
 - task: DotNetCoreCLI@2
-  displayName: 'Build'
+  displayName: 'Build solution'
   inputs:
     command: 'build'
+    projects: '$(solution)'
     arguments: '--configuration $(buildConfiguration) --no-restore'
-    projects: '**/*.csproj'
+    publishWebProjects: false
 
+
+# Publish artifacts
+- task: DotNetCoreCLI@2
+  displayName: 'Publish artifacts'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Upload artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
