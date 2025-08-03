@@ -65,7 +65,7 @@ variables:
   buildConfiguration: 'Release'
 
 pool:
-  name: Default
+  name: Azure Pipelines
   demands:
   - agent.os -equals Windows
 
