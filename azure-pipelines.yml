@@ -4,54 +4,56 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 #we setup the trigger which set pipeline to run when we push code
-trigger:
-- main
 
-# Use sequential execution
-# strategy:
-#   runOnce:
-#     deploy:
-#       steps:
+trigger:
+ branches:
+   include:
+     - main
 
 pool:
-  vmImage: 'windows-latest'
+ vmImage: 'window-latest'
 
 variables:
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  BuildPlatform: 'Any CPU'
+  BuildConfiguration: 'Release'
   solution: '**/VOTEAPPMvc.sln'
+  project:  '**/VOTEAPPMvc.csproj'
+
 
 steps:
-- checkout: self
-  clean: true
-  fetchDepth: 1
-
+  
 - task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: '$(solution)'
+  displayName: 'Install NuGet'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet'
   inputs:
+    azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
+    command: 'restore'
+    projects: '$(solution)'
+    feedsToUse: 'select'
+
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build NuGet'
+  inputs:
+    azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
     command: 'build'
     projects: '$(solution)'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(BuildConfiguration)'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Publish NuGet'
   inputs:
-    command: 'test'
-    projects: '$(solution)'
-    arguments: '--configuration $(buildConfiguration)'
-
-- task: DotNetCoreCLI@2
-  inputs:
+    azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
     command: 'publish'
     publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(buildConfiguration)  --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: false
 
 - task: PublishBuildArtifacts@1
+  displayName: 'Pubish Artifact'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
+    ArtifactName: 'BillingPipe'
+    publishLocation: 'Container'
