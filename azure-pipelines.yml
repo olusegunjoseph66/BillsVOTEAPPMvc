@@ -5,55 +5,83 @@
 
 #we setup the trigger which set pipeline to run when we push code
 
-trigger:
- branches:
-   include:
-     - main
+# trigger:
+#  branches:
+#    include:
+#      - main
 
-pool:
- vmImage: 'window-latest'
+# pool:
+#  vmImage: 'window-latest'
+
+# variables:
+#   BuildPlatform: 'Any CPU'
+#   BuildConfiguration: 'Release'
+#   solution: '**/VOTEAPPMvc.sln'
+#   project:  '**/VOTEAPPMvc.csproj'
+
+
+# steps:
+  
+# - task: NuGetToolInstaller@1
+#   displayName: 'Install NuGet'
+
+# - task: DotNetCoreCLI@2
+#   displayName: 'Restore NuGet'
+#   inputs:
+#     azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
+#     command: 'restore'
+#     projects: '$(solution)'
+#     feedsToUse: 'select'
+
+
+# - task: DotNetCoreCLI@2
+#   displayName: 'Build NuGet'
+#   inputs:
+#     azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
+#     command: 'build'
+#     projects: '$(solution)'
+#     arguments: '--configuration $(BuildConfiguration)'
+
+# - task: DotNetCoreCLI@2
+#   displayName: 'Publish NuGet'
+#   inputs:
+#     azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
+#     command: 'publish'
+#     publishWebProjects: true
+#     arguments: '--configuration $(buildConfiguration)  --output $(Build.ArtifactStagingDirectory)'
+#     zipAfterPublish: false
+
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Pubish Artifact'
+#   inputs:
+#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#     ArtifactName: 'BillingPipe'
+#     publishLocation: 'Container'
+
+trigger:
+- main
 
 variables:
-  BuildPlatform: 'Any CPU'
-  BuildConfiguration: 'Release'
-  solution: '**/VOTEAPPMvc.sln'
-  project:  '**/VOTEAPPMvc.csproj'
+  buildConfiguration: 'Release'
 
+pool:
+  name: Default
+  demands:
+  - agent.os -equals Windows
 
 steps:
-  
-- task: NuGetToolInstaller@1
-  displayName: 'Install NuGet'
+- checkout: self
 
 - task: DotNetCoreCLI@2
-  displayName: 'Restore NuGet'
+  displayName: 'Restore'
   inputs:
-    azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
     command: 'restore'
-    projects: '$(solution)'
-    feedsToUse: 'select'
-
+    projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build NuGet'
+  displayName: 'Build'
   inputs:
-    azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
     command: 'build'
-    projects: '$(solution)'
-    arguments: '--configuration $(BuildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
+    projects: '**/*.csproj'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish NuGet'
-  inputs:
-    azureSubscription: 'Subscription 1(472bfb0f-042b-45c5-900d-7532f9fb0d97)'
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration)  --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: false
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Pubish Artifact'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'BillingPipe'
-    publishLocation: 'Container'
